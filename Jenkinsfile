@@ -6,18 +6,26 @@ pipeline {
       yamlFile 'KubernetesPod.yaml'
     }
   }
-   stages {
-    stage('JDK 11 Build & Test') {
+  stages {
+    stage('Build') {
       steps {
-        container('maven-container-jdk-11') {
-          sh 'mvn --version'
-          sh 'mvn -B clean package'
-        }
+        sh 'mvn -B -DskipTests clean package'
+      }
+    }
+    stage('Test') {
+      steps {
+        sh 'mvn test'
       }
       post {
-        always {
+        always { 
           junit '**/*.xml'
         }
       }
-    }   
+    }
+    stage('Deliver') {
+      steps {
+        sh 'jenkins/scripts/deliver.sh'
+      }
+    }
+  }
 }
